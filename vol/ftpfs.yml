@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  testftp:
+    image: alpine:3
+    volumes:
+    - ftpvol:/xyz
+    command:
+    - sleep
+    - infinity
+
+volumes:
+  ftpvol:
+    driver: ghcr.io/wtnb75/anyfs:next
+    driver_opts:
+      type: curlftpfs
+      user: "user:pass"
+      src: localhost

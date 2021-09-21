@@ -1,0 +1,89 @@
+any:
+  mount_command:
+  - mount
+  - -t
+  - '{{fs_type}}'
+  strip_options: [fs_type]
+  umount_command: [umount]
+cifs:
+  mount_command:
+  - mount
+  - -t
+  - cifs
+curlftpfs:
+  mount_command: [curlftpfs]
+  umount_command:
+  - fusermount
+  - -u
+davfs2:
+  files:
+    /etc/davfs2/secrets:
+      content: '{{src}} {{options.username}} {{options.password}}'
+      mode: 0600
+      owner: root
+      group: root
+    /etc/davfs2/davfs2.conf:
+      mode: 0644
+      owner: root
+      group: root
+      content: |
+        cache_dir /tmp
+        cache_size 0
+        delay_upload 0
+  strip_options: [username, password]
+  mount_command: [mount.davfs]
+  umount_command: [umount]
+nfsv3: {}
+s3fs:
+  files:
+    /root/.passwd-s3fs:
+      content: '{{options.access_key}}:{{options.secret_key}}'
+      mode: 0600
+  mount_command: [s3fs]
+  strip_options: [access_key, secret_key]
+  umount_command:
+  - fusermount
+  - -u
+sshfs:
+  mount_command: [sshfs]
+  umount_command:
+  - fusermount
+  - -u
+isourl_loop: # does not work
+  mount_command:
+  - mount
+  - -o
+  - loop,ro
+  - -t
+  - iso9660
+  download_src: true
+  umount_command:
+  - umount
+  - -d
+squashurl_loop: # does not work
+  mount_command:
+  - mount
+  - -o
+  - loop,ro
+  - -t
+  - squashfs
+  download_src: true
+  umount_command:
+  - umount
+  - -d
+isourl:
+  mount_command:
+  - fuseiso
+  - -c
+  - utf-8
+  download_src: true
+  umount_command:
+  - fusermount
+  - -u
+squashurl:
+  mount_command:
+  - squashfuse
+  download_src: true
+  umount_command:
+  - fusermount
+  - -u
