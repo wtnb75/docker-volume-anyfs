@@ -1,0 +1,67 @@
+---
+version: "3"
+
+services:
+  cifs:
+    image: dperson/samba
+    command:
+      - -p
+    ports:
+      - 139:139
+      - 445:445
+  ftp:
+    image: stilliard/pure-ftpd
+    ports:
+      - 21:21
+      - 30000-30009:30000-30009
+    environment:
+      PUBLICHOST: "localhost"
+      FTP_USER_NAME: user
+      FTP_USER_PASS: pass
+      FTP_USER_HOME: /tmp
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - 8022:22
+    command:
+      - use:pass:::upload
+  tftp:
+    image: pghalliday/tftp
+    ports:
+      - 69:69/udp
+  nfs:
+    image: itsthenetwork/nfs-server-alpine
+    ports:
+      - 2049:2049
+    privileged: true
+    environment:
+      SHARED_DIRECTORY: /nfsshare
+  webdav:
+    image: bytemark/webdav
+    ports:
+      - 8080:80
+    environment:
+      AUTH_TYPE: Digest
+      USERNAME: user
+      PASSWORD: pass
+      ANONYMOUS_METHODS: ALL
+  s3:
+    image: quay.io/minio/minio
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniominio
+  swift:
+    # access_key/secret_key = demo:demo/DEMO_PASS
+    image: openio/sds
+    ports:
+      - 6007:6007
+    environment:
+      REGION: ap-northeast-1

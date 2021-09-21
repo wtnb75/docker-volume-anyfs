@@ -1,0 +1,21 @@
+---
+version: "3"
+
+services:
+  testdav:
+    image: alpine:3
+    volumes:
+      - davvol:/xyz
+    command:
+      - sleep
+      - infinity
+
+volumes:
+  davvol:
+    # does not work
+    driver: ghcr.io/wtnb75/anyfs:next
+    driver_opts:
+      type: davfs2
+      username: user
+      password: pass
+      src: http://localhost:8080

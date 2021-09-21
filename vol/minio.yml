@@ -1,0 +1,22 @@
+---
+version: "3"
+
+services:
+  testminio:
+    image: alpine:3
+    volumes:
+      - miniovol:/xyz
+    command:
+      - sleep
+      - infinity
+
+volumes:
+  miniovol:
+    driver: ghcr.io/wtnb75/anyfs:next
+    driver_opts:
+      type: s3fs
+      access_key: minio
+      secret_key: miniominio
+      src: bucket1
+      url: http://localhost:9000
+      o: use_path_request_style
