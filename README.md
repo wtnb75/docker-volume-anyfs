@@ -4,13 +4,20 @@
 
 ```
 # docker plugin install ghcr.io/wtnb75/anyfs
-# docker plugin enable ghcr.io/wtnb75/anyfs
+Plugin "ghcr.io/wtnb75/anyfs" is requesting the following privileges:
+ - network: [host]
+ - mount: [/var/lib/docker/plugins/]
+ - device: [/dev/fuse]
+ - capabilities: [CAP_SYS_ADMIN]
+Do you grant the above permissions? [y/N] y
 ```
 
 ### Uninstall
 
-- docker plugin disable ghcr.io/wtnb75/anyfs
-- docker plugin uninstall ghcr.io/wtnb75/anyfs
+```
+# docker plugin disable ghcr.io/wtnb75/anyfs
+# docker plugin uninstall ghcr.io/wtnb75/anyfs
+```
 
 ## s3fs-fuse
 
@@ -44,7 +51,7 @@ version: '3'
 
 volumes:
   miniovol:
-    driver: ghcr.io/wtnb75/anyfs:next
+    driver: ghcr.io/wtnb75/anyfs
     driver_opts:
       type: s3fs
       access_key: minio
@@ -54,11 +61,43 @@ volumes:
       o: use_path_request_style
 ```
 
+## ftpfs
+
+docker CLI
+
+```
+# docker volume create -d ghcr.io/wtnb75/anyfs -o type=curlftpfs -o user=${FTP_USER}:${FTP_PASS} -o src=${FTP_HOST} ftpvol
+```
+
+docker compose
+
+```yaml
+version: '3'
+
+volumes:
+  ftpvol:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: curlftpfs
+      user: "${FTPUSER}:${FTPPASS}"
+      src: ftp-server-hostname
+```
+
 ## davfs2
+
+(TBD)
 
 ## cifs
 
+(TBD)
+
 ## nfs
+
+(TBD)
+
+## sshfs
+
+(TBD)
 
 ## download and fuse
 
@@ -73,7 +112,7 @@ you can't use loopback mount because it requires too much privileges.
   - docker run --privileged ...
   - docker run --cap-add SYS_ADMIN --cap-add MKNOD -v /dev/loop-control:/dev/loop-control --device-cgroup-rule="b 7:* rmw" ...
 - in volume plugin...
-  - ?
+  - ???
 
 ## Use from docker compose
 
@@ -87,8 +126,8 @@ services:
     - sleep
     - infinity
     volumes:
-    - s3vol1:/var/s3vol
-    - davvol1:/var/davvol
+    - s3vol:/var/s3vol
+    - ftpvol:/var/ftpvol
 
 volumes:
   s3vol:
@@ -100,11 +139,10 @@ volumes:
       src: ${AWS_BUCKET}
       endpoint: ${AWS_REGION}
       url: https://s3-${AWS_REGION}.amazonaws.com
-  davvol:
+  ftpvol:
     driver: ghcr.io/wtnb75/anyfs
     driver_opts:
-      type: davfs2
-      url: https://dav-host/path
-      username: ${DAV_USERNAME}
-      password: ${DAV_PASSWORD}
+      type: curlftpfs
+      user: "${FTPUSER}:${FTPPASS}"
+      src: ftp-server-hostname
 ```
