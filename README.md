@@ -146,3 +146,14 @@ volumes:
       user: "${FTPUSER}:${FTPPASS}"
       src: ftp-server-hostname
 ```
+
+# see also
+
+- [Docker volume plugins](https://docs.docker.com/engine/extend/plugins_volume/)
+- [vieux/sshfs](https://github.com/vieux/docker-volume-sshfs)
+- [FUSE](https://github.com/libfuse/libfuse)
+  - [curlftpfs](http://curlftpfs.sourceforge.net/)
+  - [s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse)
+  - [davfs2](https://savannah.nongnu.org/projects/davfs2)
+  - [fuseiso](https://sourceforge.net/projects/fuseiso/)
+  - [squashfuse](https://github.com/vasi/squashfuse)
