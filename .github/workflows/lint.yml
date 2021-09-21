@@ -1,0 +1,29 @@
+---
+name: linters
+
+"on":
+  push:
+    branches-ignore: [gh-pages]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: setup linters
+        run: |
+          pip install flake8 pycodestyle yamllint
+      - name: check .py
+        run: |
+          pycodestyle *.py
+          flake8 --max-line-length=120 *.py
+      - name: check .json
+        run: jq . config.json > /dev/null
+      - name: check .yaml
+        run: yamllint .
+      - name: check Dockerfile
+        run: |
+          cat Dockerfile | \
+          docker run --rm -i ghcr.io/hadolint/hadolint \
+            hadolint --ignore DL3018 -

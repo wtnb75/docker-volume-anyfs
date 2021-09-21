@@ -1,16 +1,18 @@
-version: '3'
+---
+version: "3"
 
 services:
   testdav:
     image: alpine:3
     volumes:
-    - davvol:/xyz
+      - davvol:/xyz
     command:
-    - sleep
-    - infinity
+      - sleep
+      - infinity
 
 volumes:
-  davvol: # does not work
+  davvol:
+    # does not work
     driver: ghcr.io/wtnb75/anyfs:next
     driver_opts:
       type: davfs2

@@ -1,13 +1,14 @@
-version: '3'
+---
+version: "3"
 
 services:
   testftp:
     image: alpine:3
     volumes:
-    - ftpvol:/xyz
+      - ftpvol:/xyz
     command:
-    - sleep
-    - infinity
+      - sleep
+      - infinity
 
 volumes:
   ftpvol:

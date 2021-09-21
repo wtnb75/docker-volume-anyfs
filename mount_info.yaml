@@ -1,24 +1,25 @@
+---
 any:
   mount_command:
-  - mount
-  - -t
-  - '{{fs_type}}'
+    - mount
+    - -t
+    - "{{fs_type}}"
   strip_options: [fs_type]
   umount_command: [umount]
 cifs:
   mount_command:
-  - mount
-  - -t
-  - cifs
+    - mount
+    - -t
+    - cifs
 curlftpfs:
   mount_command: [curlftpfs]
   umount_command:
-  - fusermount
-  - -u
+    - fusermount
+    - -u
 davfs2:
   files:
     /etc/davfs2/secrets:
-      content: '{{src}} {{options.username}} {{options.password}}'
+      content: "{{src}} {{options.username}} {{options.password}}"
       mode: 0600
       owner: root
       group: root
@@ -37,53 +38,55 @@ nfsv3: {}
 s3fs:
   files:
     /root/.passwd-s3fs:
-      content: '{{options.access_key}}:{{options.secret_key}}'
+      content: "{{options.access_key}}:{{options.secret_key}}"
       mode: 0600
   mount_command: [s3fs]
   strip_options: [access_key, secret_key]
   umount_command:
-  - fusermount
-  - -u
+    - fusermount
+    - -u
 sshfs:
   mount_command: [sshfs]
   umount_command:
-  - fusermount
-  - -u
-isourl_loop: # does not work
+    - fusermount
+    - -u
+isourl_loop:
+  # does not work
   mount_command:
-  - mount
-  - -o
-  - loop,ro
-  - -t
-  - iso9660
+    - mount
+    - -o
+    - loop,ro
+    - -t
+    - iso9660
   download_src: true
   umount_command:
-  - umount
-  - -d
-squashurl_loop: # does not work
+    - umount
+    - -d
+squashurl_loop:
+  # does not work
   mount_command:
-  - mount
-  - -o
-  - loop,ro
-  - -t
-  - squashfs
+    - mount
+    - -o
+    - loop,ro
+    - -t
+    - squashfs
   download_src: true
   umount_command:
-  - umount
-  - -d
+    - umount
+    - -d
 isourl:
   mount_command:
-  - fuseiso
-  - -c
-  - utf-8
+    - fuseiso
+    - -c
+    - utf-8
   download_src: true
   umount_command:
-  - fusermount
-  - -u
+    - fusermount
+    - -u
 squashurl:
   mount_command:
-  - squashfuse
+    - squashfuse
   download_src: true
   umount_command:
-  - fusermount
-  - -u
+    - fusermount
+    - -u
