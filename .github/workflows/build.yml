@@ -27,3 +27,7 @@ jobs:
       - name: build
         run: |
           make --warn-undefined-variables PLUGIN_TAG=${GITHUB_REF##*/} push
+      - name: build latest
+        run: |
+          make --warn-undefined-variables PLUGIN_TAG=latest push
+        if: github.ref == 'refs/heads/main'
