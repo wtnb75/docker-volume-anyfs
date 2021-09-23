@@ -91,9 +91,54 @@ volumes:
 
 (TBD)
 
+docker compose
+
+```yaml
+version: '3'
+
+volumes:
+  cifsvol:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: cifs
+      user: ${USERNAME}
+      pass: ${PASSWORD}
+      dom: ${DOMAIN}
+      src: //server/share
+```
+
+or...
+
+```yaml
+version: '3'
+
+volumes:
+  cifsvol:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: any
+      fs_type: cifs
+      user: ${USERNAME}
+      pass: ${PASSWORD}
+      dom: ${DOMAIN}
+      src: //server/share
+```
+
 ## nfs
 
-(TBD)
+docker compose
+
+```yaml
+version: '3'
+
+volumes:
+  nfsvol:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: any
+      fs_type: nfs
+      src: server:/share
+```
 
 ## sshfs
 
@@ -101,8 +146,31 @@ volumes:
 
 ## download and fuse
 
-- fuseiso
-- squashfuse
+fuseiso
+
+```yaml
+version: '3'
+
+volumes:
+  fuseiso:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: isourl
+      src: http://host/path.iso
+```
+
+squashfuse
+
+```yaml
+version: '3'
+
+volumes:
+  fuseiso:
+    driver: ghcr.io/wtnb75/anyfs
+    driver_opts:
+      type: squashurl
+      src: http://host/path.squashfs
+```
 
 ### note
 

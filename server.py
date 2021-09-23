@@ -274,6 +274,25 @@ class AnyVolume(DockerVolumePluginBase):
             return s
         raise Exception(f"invalid template type: {s}")
 
+    def _execute_command(self, cmd, stdin=""):
+        if cmd is None:
+            return
+        # List[str]
+        if isinstance(cmd, str):
+            _log.debug("execute %s", cmd)
+            res = subprocess.run([cmd], input=stdin)
+            _log.debug("result: %s", res)
+            res.check_returncode()
+            return res
+        if {isinstance(x, str) for x in cmd} == {True}:
+            _log.debug("execute %s", cmd)
+            res = subprocess.run(cmd, input=stdin)
+            _log.debug("result: %s", res)
+            res.check_returncode()
+            return res
+        if isinstance(cmd, (list, tuple)):
+            return [self._execute_command(x) for x in cmd]
+
     def _do_mount(self, mountpt, vol):
         arg = vol.copy()
         arg["mountpoint"] = mountpt
@@ -315,9 +334,9 @@ class AnyVolume(DockerVolumePluginBase):
         cmd.append(arg.get("src"))
         cmd.append(arg.get("mountpoint"))
         stdin = arg.get("stdin", "")
-        _log.debug("execute %s", cmd)
-        res = subprocess.run(cmd, input=stdin)
-        _log.debug("result: %s", res)
+        self._execute_command(volinfo.get("pre_mount"))
+        self._execute_command(cmd, stdin)
+        self._execute_command(volinfo.get("post_mount"))
 
     def _do_unmount(self, mountpt, vol):
         arg = vol.copy()
@@ -326,9 +345,9 @@ class AnyVolume(DockerVolumePluginBase):
         volinfo = self._render_tmpl(tmpl, arg)
         cmd = volinfo.get("umount_command", ["umount"])
         cmd.append(mountpt)
-        _log.debug("execute %s", cmd)
-        res = subprocess.run(cmd)
-        _log.debug("result: %s", res)
+        self._execute_command(volinfo.get("pre_umount"))
+        self._execute_command(cmd)
+        self._execute_command(volinfo.get("post_umount"))
         for fn0 in arg.get("files", {}).keys():
             fn1 = self._render_tmpl(fn0, arg)
             _log.debug("unlink %s", fn1)
