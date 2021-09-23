@@ -47,16 +47,16 @@ jobs:
       - name: boot minio
         run: |
           docker-compose -f servers/docker-compose.yml up -d s3 mc
-          docker-compose -f servers/docker-compose.yml exec mc \
+          docker-compose -f servers/docker-compose.yml exec -T mc \
             mc alias set minio http://s3:9000 minio miniominio
-          docker-compose -f servers/docker-compose.yml exec mc \
+          docker-compose -f servers/docker-compose.yml exec -T mc \
             mc mb minio/bucket1
-          docker-compose -f servers/docker-compose.yml exec mc \
+          docker-compose -f servers/docker-compose.yml exec -T mc \
             mc cp /etc/passwd minio/bucket1/hello.txt
       - name: create s3fs
         run: |
           tag=${GITHUB_REF##*/} docker-compose -f vol/minio.yml up -d
-          docker-compose -f vol/minio.yml exec testminio \
+          docker-compose -f vol/minio.yml exec -T testminio \
             sha1sum /xyz/hello.txt
       - name: cleanup
         run: |
