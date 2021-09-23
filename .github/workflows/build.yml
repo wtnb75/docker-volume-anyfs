@@ -42,17 +42,22 @@ jobs:
           lfs: true
       - name: load plugin
         run: |
-          docker plugin install --grant-all-permissions ghcr.io/wtnb75/anyfs:${GITHUB_REF##*/}
+          docker plugin install --grant-all-permissions \
+            ghcr.io/wtnb75/anyfs:${GITHUB_REF##*/}
       - name: boot minio
         run: |
           docker-compose -f servers/docker-compose.yml up -d s3 mc
-          docker-compose -f servers/docker-compose.yml exec mc mc alias set minio http://s3:9000 minio miniominio
-          docker-compose -f servers/docker-compose.yml exec mc mc mb minio/bucket1
-          docker-compose -f servers/docker-compose.yml exec mc mc cp /etc/passwd minio/bucket1/hello.txt
+          docker-compose -f servers/docker-compose.yml exec mc \
+            mc alias set minio http://s3:9000 minio miniominio
+          docker-compose -f servers/docker-compose.yml exec mc \
+            mc mb minio/bucket1
+          docker-compose -f servers/docker-compose.yml exec mc \
+            mc cp /etc/passwd minio/bucket1/hello.txt
       - name: create s3fs
         run: |
           tag=${GITHUB_REF##*/} docker-compose -f vol/minio.yml up -d
-          docker-compose -f vol/minio.yml exec testminio sha1sum /xyz/hello.txt
+          docker-compose -f vol/minio.yml exec testminio \
+            sha1sum /xyz/hello.txt
       - name: cleanup
         run: |
           docker-compose -f vol/minio.yml down -v

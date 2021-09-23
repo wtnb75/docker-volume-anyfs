@@ -68,5 +68,5 @@ services:
   mc:
     image: quay.io/minio/mc:latest
     entrypoint:
-    - sleep
-    - infinity
+      - sleep
+      - infinity
