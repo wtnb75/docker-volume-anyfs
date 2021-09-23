@@ -49,9 +49,9 @@ class DockerVolumePluginBase(metaclass=ABCMeta):
     def do_any(self, fn, req):
         try:
             data = json.loads(req.data.decode("utf-8"))
-            _log.info("%s %s %s", req.method, req.path, data)
+            _log.debug("%s %s %s", req.method, req.path, data)
         except Exception:
-            _log.info("%s %s %s", req.method, req.path, req.data)
+            _log.debug("%s %s %s", req.method, req.path, req.data)
             data = None
         return fn(req, data)
 
@@ -146,9 +146,9 @@ class AnyVolume(DockerVolumePluginBase):
         try:
             with open(self.statefn, "r") as ifp:
                 self.volumes = json.load(fp=ifp)
-            _log.info("volumes %s", self.volumes)
-        except Exception as e:
-            _log.info("cannot read state file", exc_info=e)
+            _log.debug("volumes %s", self.volumes)
+        except Exception:
+            _log.exception("cannot read state file? %s", self.statefn)
 
     def Create(self, req, data):
         volname = data.get("Name")
@@ -182,7 +182,7 @@ class AnyVolume(DockerVolumePluginBase):
             opts["src"] = tfname
             opts["_remove"] = tfname
         self.volumes[volname] = opts
-        _log.info("volumes: %s", self.volumes)
+        _log.debug("volumes: %s", self.volumes)
         self.save()
         return self.resp_200({})
 
@@ -201,7 +201,7 @@ class AnyVolume(DockerVolumePluginBase):
         return self.resp_200({})
 
     def List(self, req, data):
-        _log.info("volumes: %s", self.volumes)
+        _log.debug("volumes: %s", self.volumes)
         res = {
             "Volumes": [{"Name": k, "Mountpoint": v.get("mountpoint")} for k, v in self.volumes.items()],
         }
@@ -212,7 +212,7 @@ class AnyVolume(DockerVolumePluginBase):
         if volname not in self.volumes:
             return self.resp_400({"message": f"no volume: {volname}"})
         vol = self.volumes.get(volname)
-        _log.info("volume %s %s", volname, vol)
+        _log.debug("volume %s %s", volname, vol)
         res = {
             "Volume": {
                 "Name": volname,
@@ -274,6 +274,25 @@ class AnyVolume(DockerVolumePluginBase):
             return s
         raise Exception(f"invalid template type: {s}")
 
+    def _execute_command(self, cmd, stdin=""):
+        if cmd is None:
+            return
+        # List[str]
+        if isinstance(cmd, str):
+            _log.debug("execute %s", cmd)
+            res = subprocess.run([cmd], input=stdin)
+            _log.debug("result: %s", res)
+            res.check_returncode()
+            return res
+        if {isinstance(x, str) for x in cmd} == {True}:
+            _log.debug("execute %s", cmd)
+            res = subprocess.run(cmd, input=stdin)
+            _log.debug("result: %s", res)
+            res.check_returncode()
+            return res
+        if isinstance(cmd, (list, tuple)):
+            return [self._execute_command(x) for x in cmd]
+
     def _do_mount(self, mountpt, vol):
         arg = vol.copy()
         arg["mountpoint"] = mountpt
@@ -283,7 +302,7 @@ class AnyVolume(DockerVolumePluginBase):
         _log.debug("volinfo: %s", volinfo)
         for fn0, content in volinfo.get("files", {}).items():
             fn1 = self._render_tmpl(fn0, arg)
-            _log.debug("writing %s", fn1)
+            _log.info("writing %s", fn1)
             os.makedirs(os.path.dirname(fn1), exist_ok=True, mode=0o700)
             mode = 0o600
             owner = 0
@@ -301,7 +320,7 @@ class AnyVolume(DockerVolumePluginBase):
                 print(content_str, file=ofp)
             os.chmod(fn1, mode)
             shutil.chown(fn1, user=owner, group=group)
-            _log.info("stat %s: %s", fn1, os.stat(fn1))
+            _log.debug("stat %s: %s", fn1, os.stat(fn1))
         cmd = volinfo.get("mount_command")
         mount_opts = []
         for k, v in arg.get("options", {}).items():
@@ -315,9 +334,9 @@ class AnyVolume(DockerVolumePluginBase):
         cmd.append(arg.get("src"))
         cmd.append(arg.get("mountpoint"))
         stdin = arg.get("stdin", "")
-        _log.debug("execute %s", cmd)
-        res = subprocess.run(cmd, input=stdin)
-        _log.debug("result: %s", res)
+        self._execute_command(volinfo.get("pre_mount"))
+        self._execute_command(cmd, stdin)
+        self._execute_command(volinfo.get("post_mount"))
 
     def _do_unmount(self, mountpt, vol):
         arg = vol.copy()
@@ -326,9 +345,9 @@ class AnyVolume(DockerVolumePluginBase):
         volinfo = self._render_tmpl(tmpl, arg)
         cmd = volinfo.get("umount_command", ["umount"])
         cmd.append(mountpt)
-        _log.debug("execute %s", cmd)
-        res = subprocess.run(cmd)
-        _log.debug("result: %s", res)
+        self._execute_command(volinfo.get("pre_umount"))
+        self._execute_command(cmd)
+        self._execute_command(volinfo.get("post_umount"))
         for fn0 in arg.get("files", {}).keys():
             fn1 = self._render_tmpl(fn0, arg)
             _log.debug("unlink %s", fn1)

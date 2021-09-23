@@ -12,7 +12,7 @@ services:
 
 volumes:
   miniovol:
-    driver: ghcr.io/wtnb75/anyfs:next
+    driver: ghcr.io/wtnb75/anyfs:${tag-latest}
     driver_opts:
       type: s3fs
       access_key: minio
