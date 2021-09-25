@@ -100,39 +100,12 @@ class DockerVolumePluginBase(metaclass=ABCMeta):
 
 
 class AnyVolume(DockerVolumePluginBase):
-    mount_info = {
-        "davfs2": {
-            "mount_command": ["mount.davfs", "-o", "conf=/etc/davfs.conf"],
-            "umount_command": ["umount.davfs"],
-            "files": {
-                "/etc/davfs.conf": "",
-            },
-        },
-        "curlftpfs": {},
-        "s3fs": {
-            "mount_command": ["s3fs"],
-            "strip_options": ["access_key", "secret_key"],
-            "umount_command": ["fusermount", "-u"],
-            "files": {
-                "/root/.passwd-s3fs": {
-                    "content": "{{options.access_key}}:{{options.secret_key}}\n",
-                    "mode": 0o600,
-                }
-            }
-        },
-        "cifs": {},
-        "sshfs": {},
-        "nfs": {},
-        "any": {
-            "mount_command": ["mount", "-t", "{{type}}"],
-            "umount_command": ["umount"],
-        }
-    }
+    mount_info = {}
 
     def __init__(self, root, mount_info=None):
         super().__init__()
         self.volroot = os.path.join(root, "volumes")
-        self.statefn = os.path.join(root, "state", "fusefs-state.json")
+        self.statefn = os.path.join(root, "state", "anyfs-state.json")
         self.volumes = {}
         if mount_info:
             self.mount_info = mount_info

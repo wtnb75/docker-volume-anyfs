@@ -3,7 +3,7 @@ any:
   mount_command:
     - mount
     - -t
-    - "{{fs_type}}"
+    - "{{options.fs_type}}"
   strip_options: [fs_type]
   umount_command: [umount]
 cifs:

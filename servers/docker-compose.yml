@@ -4,11 +4,16 @@ version: "3"
 services:
   cifs:
     image: dperson/samba
-    command:
-      - -p
     ports:
       - 139:139
       - 445:445
+    command:
+      - -p
+      - -r
+      - -u
+      - "user;pass"
+      - -s
+      - "share;/tmp;yes;no;no;user"
   ftp:
     image: stilliard/pure-ftpd
     ports:
@@ -33,9 +38,11 @@ services:
     image: itsthenetwork/nfs-server-alpine
     ports:
       - 2049:2049
+      - 111:111
+      - 111:111/udp
     privileged: true
     environment:
-      SHARED_DIRECTORY: /nfsshare
+      SHARED_DIRECTORY: /var/tmp
   webdav:
     image: bytemark/webdav
     ports:

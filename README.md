@@ -89,7 +89,11 @@ volumes:
 
 ## cifs
 
-(TBD)
+docker CLI
+
+```
+# docker volume create -d ghcr.io/wtnb75/anyfs -o type=cifs -o user=${CIFS_USER} -o pass=${CIFS_PASS} -o src=${CIFS_SHARE} cifsvol
+```
 
 docker compose
 
@@ -101,9 +105,8 @@ volumes:
     driver: ghcr.io/wtnb75/anyfs
     driver_opts:
       type: cifs
-      user: ${USERNAME}
-      pass: ${PASSWORD}
-      dom: ${DOMAIN}
+      user: ${CIFS_USER}
+      pass: ${CIFS_PASS}
       src: //server/share
 ```
 
