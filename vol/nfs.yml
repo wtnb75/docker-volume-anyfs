@@ -1,0 +1,20 @@
+---
+version: "3"
+
+services:
+  testnfs:
+    image: alpine:3
+    volumes:
+      - nfsvol:/xyz
+    command:
+      - sleep
+      - infinity
+
+volumes:
+  nfsvol:
+    driver: ghcr.io/wtnb75/anyfs:${tag-latest}
+    driver_opts:
+      type: any
+      fs_type: nfs
+      o: nolock
+      src: localhost:/var/tmp

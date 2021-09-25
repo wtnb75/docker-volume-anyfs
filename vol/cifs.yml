@@ -1,0 +1,20 @@
+---
+version: "3"
+
+services:
+  testcifs:
+    image: alpine:3
+    volumes:
+      - cifsvol:/xyz
+    command:
+      - sleep
+      - infinity
+
+volumes:
+  cifsvol:
+    driver: ghcr.io/wtnb75/anyfs:${tag-latest}
+    driver_opts:
+      type: cifs
+      user: user
+      pass: pass
+      src: //localhost/share
