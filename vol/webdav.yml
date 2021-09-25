@@ -13,7 +13,7 @@ services:
 volumes:
   davvol:
     # does not work
-    driver: ghcr.io/wtnb75/anyfs:next
+    driver: ghcr.io/wtnb75/anyfs:${tag-latest}
     driver_opts:
       type: davfs2
       username: user

@@ -12,7 +12,7 @@ services:
 
 volumes:
   ftpvol:
-    driver: ghcr.io/wtnb75/anyfs:next
+    driver: ghcr.io/wtnb75/anyfs:${tag-latest}
     driver_opts:
       type: curlftpfs
       user: "user:pass"
