@@ -351,12 +351,14 @@ def main(host, port, debug, verbose, root, config):
     if config:
         mount_info = yaml.safe_load(config)
     from logging import basicConfig, DEBUG, INFO
+    import signal
     # logfmt = "%(asctime)-15s %(levelname)s %(threadName)s %(name)s %(message)s"
     logfmt = "%(levelname)s %(threadName)s %(name)s %(message)s"
     if verbose:
         basicConfig(level=DEBUG, format=logfmt)
     else:
         basicConfig(level=INFO, format=logfmt)
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     plugin = AnyVolume(root=root, mount_info=mount_info)
     plugin.run(host=host, port=port, debug=debug)
 
